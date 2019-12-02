@@ -2,20 +2,12 @@ package paidee.restaurant.repository
 
 import doobie.free.connection.ConnectionIO
 import doobie.implicits._
-import cats._
-import cats.data._
 import cats.effect._
-import doobie._
 import cats.implicits._
 import com.typesafe.scalalogging.Logger
-import doobie.util.query.Query0
-import doobie.util.update.{Update, Update0}
-import javafx.concurrent.Task
+import doobie.util.update.Update
 import paidee.restaurant.models.{Item, ItemDeleteResponse, ItemName, ResponseBase, TableId, TableResponse}
 import paidee.restaurant.repository
-
-import scala.concurrent.Future
-import scala.util.control.NonFatal
 
 sealed trait RestaurantRepository {
 
@@ -25,22 +17,26 @@ sealed trait RestaurantRepository {
 }
 
  class RestaurantRepositoryImpl extends RestaurantRepository{
-   val random =  scala.util.Random
+  private val random =  scala.util.Random
    def r:Int = 1 + random.nextInt(14)
-  val logger = Logger("RestaurantRepository")
-  override def addItemsToTable(item: Seq[ItemName], tableId: TableId): IO[TableResponse] = {
-    insertItems(item.map( x => RestaurantOrder(x,tableId,r)).toList).transact(repository.db).attempt.map{
+   val logger = Logger("RestaurantRepository")
+   val makeOrderReq : (Seq[String], Int) => List[RestaurantOrder] = (seq,t) => seq.map(x=>RestaurantOrder(x,t,r)).toList
+   val makeDeleteReq : (Seq[String], Int) => List[DeleteOrder] = (seq,t) => seq.map(x=>DeleteOrder(x,t)).toList
+  override def addItemsToTable(items: Seq[ItemName], tableId: TableId): IO[TableResponse] = {
+    insertItems(makeOrderReq(items,tableId)).transact(repository.db).attempt.map{
       case Left(e) => logger.error("Unable to add items to table",e.getCause)
-        ResponseBase.withError(Some("Sorry, your order could not be processed"))
-      case Right(x) => TableResponse(items = item.iterator.map(x=> Item(x,r)).toSeq,success = true)
+        ResponseBase.withError(Some("Sorry, our system has encountered some technical issues"))
+      case Right(x) if(x==items.length)=> TableResponse(items = items.iterator.map(x=> Item(x,r)).toSeq,success = true)
+      case Right(_) => ResponseBase.withError(Some("Sorry, your order could not be processed"))
     }
   }
 
-  override def deleteOrder(itemName: Seq[ItemName], tableId: TableId) : IO[ItemDeleteResponse] = {
-    deleteOrder(itemName.map( x => DeleteOrder(x,tableId)).toList).transact(repository.db).attempt.map{
+  override def deleteOrder(items : Seq[ItemName], tableId: TableId) : IO[ItemDeleteResponse] = {
+    deleteOrder(makeDeleteReq(items,tableId)).transact(repository.db).attempt.map{
       case Left(e) => logger.error(s"Unable to delete items for table $tableId",e.getCause)
-        ItemDeleteResponse(success = false,Some("Sorry, your order could not be processed"))
-      case Right(_) => ItemDeleteResponse(success = true)
+        ItemDeleteResponse(success = false,Some("Sorry, our system has encountered some technical issues"))
+      case Right(x) if(x==items.length) => ItemDeleteResponse(success = true)
+      case Right(_) => ItemDeleteResponse(false,Some("Sorry, your order could not be processed"))
     }
   }
 

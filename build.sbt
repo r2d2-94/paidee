@@ -29,6 +29,7 @@ lazy val root = (project in file("."))
       "org.tpolecat" %% "doobie-quill"     % DoobieVersion,
       "org.tpolecat" %% "doobie-postgres"  % DoobieVersion,
       "org.tpolecat" %% "doobie-scalatest" % DoobieVersion % "test",
+      "org.mockito" %% "mockito-scala" % "1.6.3" % Test
     ),
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.0")
