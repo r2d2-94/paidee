@@ -1,14 +1,12 @@
 package paidee.restaurant.repository
 
 import org.scalatest.FunSuite
-import org.scalatestplus.mockito.MockitoSugar
-
-class RestaurantRepositorySpec extends FunSuite  with MockitoSugar{
+class RestaurantRepositorySpec extends FunSuite {
 
   val testMinutes = 1
   val tableId  = 1
   private val testItem = Seq("pakoda","poha")
-  private val repo = new RestaurantRepositoryImpl{
+  private val repo = new RestaurantRepositoryImpl(IntegrationTest.db){
     override def r = testMinutes
   }
   test("testMakeOrder") {

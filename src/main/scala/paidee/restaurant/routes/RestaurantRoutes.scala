@@ -5,10 +5,13 @@ import org.http4s._
 import org.http4s.dsl.Http4sDsl
 import io.circe.generic.auto._
 import org.http4s.circe.CirceEntityDecoder._
-import org.http4s.dsl.Http4sDsl._
 import org.http4s.circe.CirceEntityEncoder._
+import org.http4s.dsl.Http4sDsl._
+
+
+
 import paidee.restaurant.models.{TableItemsRequest, TableRequest}
-import paidee.restaurant.service.{RestaurantService}
+import paidee.restaurant.service.RestaurantService
 
 object RestaurantRoutes {
 
@@ -23,7 +26,7 @@ object RestaurantRoutes {
             res <- Ok(serve)
           } yield res
         }
-      case req @ DELETE  -> Root / "v1" / "table" / "removeItem" =>
+      case req @ DELETE  -> Root / "v1" / "table" / "removeItems" =>
         req.decode[TableItemsRequest] { req =>
           for {
             serve <- R.deleteItem(req)

@@ -1,14 +1,12 @@
-package paidee.restaurant
+package paidee.restaurant.repository
 
 import doobie._
-import doobie.implicits._
 import cats.effect.IO
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.ExecutionContext
 
-
-package object repository {
+object DBProxy {
 
   implicit val cs = IO.contextShift(ExecutionContext.global)
   private val config = ConfigFactory.load().getConfig("database")
@@ -19,7 +17,4 @@ package object repository {
   val db = Transactor.fromDriverManager[IO](
     "org.postgresql.Driver", s"jdbc:postgresql:$dbName", s"$userName", s"$pass"
   )
-  SQLQuery.initSchema.run.transact(db).unsafeRunSync()
-  SQLQuery.initDB.run.transact(db).unsafeRunSync()
 }
-

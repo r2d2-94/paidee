@@ -1,4 +1,5 @@
 package paidee.restaurant
+import org.http4s.circe.CirceEntityCodec._
 
 package object models {
  type TableId = Int
