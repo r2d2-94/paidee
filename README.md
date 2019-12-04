@@ -10,7 +10,8 @@ Frameworks used :
 
 #How to run
 - Ensure postgres database instance up
-- Execute `run` from sbt shell or `sbt run` in the home directory of this project.
+- Have `sbt` installed. Alternatively you can import into IntelliJ idea with sbt plugin.
+- Execute `run` from sbt shell(if using IntelliJ) or `sbt run` in the home directory of this project.
 - A Client is started with the server.
 - Use PostMan or any other client to view current status or add/delete items to a table
 
